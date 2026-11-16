@@ -1,0 +1,478 @@
+{
+  "entities": {
+    "UserPublic": {
+      "title": "UserPublic",
+      "description": "Public user identity and role assignment.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "role": { "type": "string", "enum": ["super_admin", "staff", "supplier", "customer", "delivery_partner"] },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "preferredCurrency": { "type": "string", "enum": ["TZS", "USD", "GBP", "EUR", "KES"] },
+        "preferredCountry": { "type": "string", "minLength": 2, "maxLength": 64 },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "loginCount": { "type": "number" },
+        "erasureRequestedAt": { "type": "string", "format": "date-time" },
+        "anonymizedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "role", "status", "createdAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII for user email, phone, and saved delivery addresses.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "email": { "type": "string", "format": "email", "maxLength": 180 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "addresses": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "SupplierProfile": {
+      "title": "SupplierProfile",
+      "description": "Public supplier storefront metadata and marketplace approval state.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "ownerUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "businessName": { "type": "string", "minLength": 2, "maxLength": 140 },
+        "country": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "category": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "description": { "type": "string", "minLength": 5, "maxLength": 1200 },
+        "status": { "type": "string", "enum": ["REGISTERED", "PENDING_REVIEW", "APPROVED", "REJECTED", "SUSPENDED"] },
+        "commissionRatePct": { "type": "number" },
+        "ratingAvg": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerUid", "businessName", "country", "category", "status", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Multi-vendor fashion product listing with variants and shipping metadata.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "supplierId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "supplierOwnerUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "slug": { "type": "string", "minLength": 2, "maxLength": 180 },
+        "gender": { "type": "string", "enum": ["MEN", "WOMEN", "UNISEX"] },
+        "category": { "type": "string", "minLength": 2, "maxLength": 64 },
+        "sellingPriceUsd": { "type": "number" },
+        "wholesalePriceUsd": { "type": "number" },
+        "totalStock": { "type": "number" },
+        "status": { "type": "string", "enum": ["DRAFT", "PENDING_APPROVAL", "APPROVED", "PUBLISHED", "REJECTED", "CHANGES_REQUESTED", "ARCHIVED"] },
+        "isPublished": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "supplierId", "supplierOwnerUid", "title", "gender", "category", "sellingPriceUsd", "status", "createdAt"]
+    },
+    "ProductImageMeta": {
+      "title": "ProductImageMeta",
+      "description": "Metadata for uploaded supplier product images stored in Firebase Storage / disk media with strict ownership tracking.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "productId": { "type": "string", "maxLength": 128 },
+        "supplierId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "supplierOwnerUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "url": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "fileName": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "mimeType": { "type": "string", "enum": ["image/jpeg", "image/png", "image/webp"] },
+        "sizeBytes": { "type": "number" },
+        "isPrimary": { "type": "boolean" },
+        "storagePath": { "type": "string", "maxLength": 500 },
+        "storageProvider": { "type": "string", "enum": ["firebase_storage", "local_media", "external_url"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "supplierId", "supplierOwnerUid", "url", "fileName", "mimeType", "sizeBytes", "createdAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Master customer order aggregating supplier-specific suborders.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "currency": { "type": "string", "enum": ["TZS", "USD", "GBP", "EUR", "KES"] },
+        "totalUsd": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["PENDING", "AWAITING_VERIFICATION", "CONFIRMED", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED"] },
+        "submittedTransactionId": { "type": "string", "maxLength": 120 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "currency", "totalUsd", "paymentStatus", "createdAt"]
+    },
+    "SupplierSuborder": {
+      "title": "SupplierSuborder",
+      "description": "Supplier-scoped fulfillment order split from a master customer order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "supplierId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "supplierOwnerUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string" },
+        "marketplaceCommissionUsd": { "type": "number" },
+        "supplierNetEarningsUsd": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "supplierId", "supplierOwnerUid", "status", "createdAt"]
+    },
+    "RefundRequest": {
+      "title": "RefundRequest",
+      "description": "Customer return and refund claim with evidence and dispute resolution state.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "suborderId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "customerId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "supplierId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "status": { "type": "string", "enum": ["SUBMITTED", "EVIDENCE_REQUESTED", "SUPPLIER_RESPONDED", "APPROVED", "REJECTED", "REFUNDED"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "suborderId", "customerId", "supplierId", "status", "createdAt"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Customer and supplier support tickets managed by marketplace staff.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "category": { "type": "string", "enum": ["order", "supplier", "payment", "general"] },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+        "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "category", "priority", "status", "createdAt"]
+    },
+    "PaymentSubmission": {
+      "title": "PaymentSubmission",
+      "description": "Customer manual payment proof and transaction reference awaiting admin verification (receipt binaries stored in Firebase Storage / disk vault).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "paymentId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "customerId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "paymentMethod": { "type": "string", "enum": ["manual_mobile", "manual_nmb"] },
+        "transactionId": { "type": "string", "minLength": 4, "maxLength": 120 },
+        "amountExpectedDisplay": { "type": "number" },
+        "amountSentDisplay": { "type": "number" },
+        "currency": { "type": "string", "enum": ["TZS", "USD", "GBP", "EUR", "KES"] },
+        "senderName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "transactionDate": { "type": "string", "minLength": 4, "maxLength": 40 },
+        "receiptStoragePath": { "type": "string", "maxLength": 500 },
+        "receiptMimeType": { "type": "string", "enum": ["image/jpeg", "image/png", "image/webp"] },
+        "receiptSizeBytes": { "type": "number" },
+        "status": { "type": "string", "enum": ["PENDING_VERIFICATION", "INFO_REQUESTED", "VERIFIED", "REJECTED"] },
+        "isDuplicateSuspected": { "type": "boolean" },
+        "amountMismatchFlag": { "type": "boolean" },
+        "reviewedByEmail": { "type": "string", "maxLength": 180 },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "paymentId", "customerId", "paymentMethod", "transactionId", "amountSentDisplay", "currency", "senderName", "status", "createdAt"]
+    },
+    "PaymentAuditLog": {
+      "title": "PaymentAuditLog",
+      "description": "Immutable financial verification and payment status audit record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "paymentId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 80 },
+        "previousStatus": { "type": "string", "maxLength": 64 },
+        "newStatus": { "type": "string", "maxLength": 64 },
+        "actorUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "actorEmail": { "type": "string", "maxLength": 180 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "paymentId", "orderId", "action", "previousStatus", "newStatus", "actorUid", "createdAt"]
+    },
+    "NotificationItem": {
+      "title": "NotificationItem",
+      "description": "Role-scoped real-time marketplace notification persisted per user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "recipientUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "type": { "type": "string", "enum": ["order", "payment", "fulfillment", "return", "supplier", "product", "security", "system"] },
+        "priority": { "type": "string", "enum": ["low", "normal", "high", "urgent"] },
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "message": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "read": { "type": "boolean" },
+        "readAt": { "type": "string", "format": "date-time" },
+        "hiddenByRecipient": { "type": "boolean" },
+        "hiddenAt": { "type": "string", "format": "date-time" },
+        "dedupeKey": { "type": "string", "maxLength": 160 },
+        "targetType": { "type": "string", "maxLength": 40 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "actionLabel": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "recipientUid", "type", "title", "message", "read", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Append-only operational, financial, and security audit trail.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "actorUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "actorEmail": { "type": "string", "maxLength": 180 },
+        "actorRole": { "type": "string", "maxLength": 40 },
+        "action": { "type": "string", "maxLength": 80 },
+        "targetType": { "type": "string", "maxLength": 60 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "targetUserId": { "type": "string", "maxLength": 128 },
+        "relatedOrderId": { "type": "string", "maxLength": 128 },
+        "outcome": { "type": "string", "enum": ["SUCCESS", "FAILURE", "BLOCKED"] },
+        "details": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "actorUid", "actorEmail", "actorRole", "action", "targetType", "targetId", "details", "createdAt"]
+    },
+    "DataRetentionPolicy": {
+      "title": "DataRetentionPolicy",
+      "description": "Configurable marketplace audit, notification, backup, and privacy retention policy.",
+      "type": "object",
+      "properties": {
+        "auditLogsDays": { "type": "number" },
+        "ordersAndPaymentsDays": { "type": "number" },
+        "notificationsDays": { "type": "number" },
+        "activityEventsDays": { "type": "number" },
+        "supportTicketsDays": { "type": "number" },
+        "backupsKeepCount": { "type": "number" },
+        "auditLogRetentionDays": { "type": "number" },
+        "notificationRetentionDays": { "type": "number" },
+        "backupRetentionDays": { "type": "number" },
+        "maxBackupSnapshots": { "type": "number" },
+        "autoBackupEnabled": { "type": "boolean" },
+        "anonymizeOrdersOnErasure": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["auditLogsDays", "ordersAndPaymentsDays", "notificationsDays", "backupsKeepCount", "updatedAt"]
+    },
+    "NotificationPreferences": {
+      "title": "NotificationPreferences",
+      "description": "User notification delivery preferences.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "inAppEnabled": { "type": "boolean" },
+        "emailEnabled": { "type": "boolean" },
+        "mutedTypes": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "inAppEnabled", "emailEnabled", "updatedAt"]
+    },
+    "ActivityEvent": {
+      "title": "ActivityEvent",
+      "description": "Privacy-respecting user browsing, cart, search, and conversion event.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "maxLength": 40 },
+        "productId": { "type": "string", "maxLength": 128 },
+        "supplierId": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "type", "createdAt"]
+    },
+    "UserPreferenceProfile": {
+      "title": "UserPreferenceProfile",
+      "description": "Per-user inferred fashion preferences and personalization opt-in settings.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "personalizationEnabled": { "type": "boolean" },
+        "analyticsConsent": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "personalizationEnabled", "analyticsConsent", "updatedAt"]
+    },
+    "AiReportRecord": {
+      "title": "AiReportRecord",
+      "description": "Admin or supplier-scoped business intelligence report generated from database metrics.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "scope": { "type": "string", "enum": ["admin", "supplier"] },
+        "supplierId": { "type": "string", "maxLength": 128 },
+        "requestedByUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "rangeLabel": { "type": "string", "maxLength": 80 },
+        "aiGenerated": { "type": "boolean" },
+        "executiveSummary": { "type": "string", "maxLength": 4000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "scope", "requestedByUid", "rangeLabel", "aiGenerated", "executiveSummary", "createdAt"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Promotional discount codes managed by marketplace admins.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "code": { "type": "string", "minLength": 3, "maxLength": 40 },
+        "type": { "type": "string", "enum": ["percentage", "fixed"] },
+        "value": { "type": "number" },
+        "minOrderUsd": { "type": "number" },
+        "active": { "type": "boolean" },
+        "usageCount": { "type": "number" }
+      },
+      "required": ["id", "code", "type", "value", "active"]
+    },
+    "CommissionRule": {
+      "title": "CommissionRule",
+      "description": "Commission rules across global, category, or supplier scopes.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "scope": { "type": "string", "enum": ["global", "category", "supplier", "promotional"] },
+        "label": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "percentage": { "type": "number" },
+        "fixedFeeUsd": { "type": "number" },
+        "active": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "scope", "label", "percentage", "active", "updatedAt"]
+    },
+    "ShippingZone": {
+      "title": "ShippingZone",
+      "description": "Regional and international shipping zone rates and timelines.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "baseFeeUsd": { "type": "number" }
+      },
+      "required": ["id", "name", "baseFeeUsd"]
+    },
+    "UserCart": {
+      "title": "UserCart",
+      "description": "Persistent cross-device shopping cart synchronized for signed-in users.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "items": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "items", "updatedAt"]
+    },
+    "NewsletterSubscriber": {
+      "title": "NewsletterSubscriber",
+      "description": "Persistent newsletter subscriber registration.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email", "maxLength": 180 },
+        "market": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "market", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPublic" },
+      "description": "Public user metadata and role pointer."
+    },
+    "/users/{userId}/private/info": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "PII user email, phone, and addresses isolated per owner."
+    },
+    "/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/SupplierProfile" },
+      "description": "Supplier storefront profiles and approval statuses."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Multi-vendor product catalog."
+    },
+    "/product_images/{imageId}": {
+      "schema": { "$ref": "#/entities/ProductImageMeta" },
+      "description": "Supplier-uploaded product image metadata."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Master customer orders."
+    },
+    "/suborders/{suborderId}": {
+      "schema": { "$ref": "#/entities/SupplierSuborder" },
+      "description": "Supplier-specific suborders split from master orders."
+    },
+    "/payment_submissions/{submissionId}": {
+      "schema": { "$ref": "#/entities/PaymentSubmission" },
+      "description": "Customer manual payment verification submissions."
+    },
+    "/payment_audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/PaymentAuditLog" },
+      "description": "Immutable payment audit trail."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/NotificationItem" },
+      "description": "Persisted user notifications."
+    },
+    "/notification_preferences/{userId}": {
+      "schema": { "$ref": "#/entities/NotificationPreferences" },
+      "description": "User notification preferences."
+    },
+    "/activity_events/{eventId}": {
+      "schema": { "$ref": "#/entities/ActivityEvent" },
+      "description": "Marketplace activity events for BI & recommendations."
+    },
+    "/user_preferences/{userId}": {
+      "schema": { "$ref": "#/entities/UserPreferenceProfile" },
+      "description": "Per-user personalization & recommendation profile."
+    },
+    "/ai_reports/{reportId}": {
+      "schema": { "$ref": "#/entities/AiReportRecord" },
+      "description": "Generated Admin and Supplier Business Intelligence reports."
+    },
+    "/refund_requests/{refundId}": {
+      "schema": { "$ref": "#/entities/RefundRequest" },
+      "description": "Customer return and refund claims."
+    },
+    "/support_tickets/{ticketId}": {
+      "schema": { "$ref": "#/entities/SupportTicket" },
+      "description": "Marketplace support tickets."
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Append-only administrative, financial, and security audit trail."
+    },
+    "/coupons/{couponId}": {
+      "schema": { "$ref": "#/entities/Coupon" },
+      "description": "Promotional discount codes."
+    },
+    "/commission_rules/{ruleId}": {
+      "schema": { "$ref": "#/entities/CommissionRule" },
+      "description": "Marketplace commission rate configuration rules."
+    },
+    "/shipping_zones/{zoneId}": {
+      "schema": { "$ref": "#/entities/ShippingZone" },
+      "description": "Shipping zone fee and ETA rules."
+    },
+    "/carts/{userId}": {
+      "schema": { "$ref": "#/entities/UserCart" },
+      "description": "Persistent cross-device shopping cart state per authenticated user."
+    },
+    "/newsletter_subscribers/{subscriberId}": {
+      "schema": { "$ref": "#/entities/NewsletterSubscriber" },
+      "description": "Storefront newsletter subscriptions keyed by hashed email."
+    }
+  }
+}

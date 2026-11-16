@@ -1,0 +1,1070 @@
+# TANZANITE EXPRESS — COMPLETE EXISTING MARKETPLACE UPGRADE
+## Master Implementation Instructions for Google AI Studio
+
+### CRITICAL INSTRUCTION — EXISTING PROJECT ONLY
+
+I ALREADY HAVE AN EXISTING WEBSITE AND APPLICATION PROJECT.
+
+**DO NOT create a new project. DO NOT rebuild the application from scratch. DO NOT delete existing features, data, database records, working integrations, or existing functionality.**
+
+Your task is to inspect, upgrade, complete, secure, and improve the existing application.
+
+The official brand name is **TANZANITE EXPRESS**. Replace outdated MIK FASHION HUB branding throughout the application where appropriate, including website titles, navigation, metadata, dashboards, login pages, emails, notifications, and branding assets.
+
+The objective is to create a professional, secure, intelligent, scalable, international multi-vendor fashion dropshipping marketplace.
+
+---
+
+# PHASE 1 — INSPECT THE EXISTING PROJECT BEFORE IMPLEMENTATION
+
+Before changing anything:
+
+1. Inspect the complete existing source code and project structure.
+2. Identify the frontend framework, backend architecture, database, authentication provider, file storage, APIs, hosting and deployment configuration.
+3. Inspect all existing pages, routes, dashboards, components, database tables, functions, integrations and environment variables.
+4. Identify all existing working features and preserve them.
+5. Identify incomplete features, errors, security vulnerabilities and technical limitations.
+6. Identify existing branding assets and uploaded Tanzanite gemstone image.
+7. Identify existing GitHub integration and deployment workflow.
+8. Prepare a safe implementation plan before modifying the application.
+
+Do not create duplicate authentication systems, duplicate database tables, duplicate APIs or unnecessary replacement infrastructure.
+
+Use the existing architecture wherever it is technically appropriate.
+
+Preserve existing user accounts, products, orders, uploaded files and business records.
+
+If a database migration is necessary, make it backward-compatible where possible, preserve existing data and provide a safe migration strategy.
+
+---
+
+# PHASE 2 — OFFICIAL TANZANITE EXPRESS BRANDING
+
+## A. Official identity
+
+The official marketplace name is:
+
+**TANZANITE EXPRESS**
+
+Maintain a premium, modern fashion-commerce identity.
+
+Use the actual Tanzanite gemstone image uploaded by me as the primary brand reference.
+
+Do not replace my uploaded gemstone with an unrelated stock image, generic icon or newly invented gemstone.
+
+## B. Logo implementation
+
+Use the uploaded gemstone design consistently across:
+
+- Website header.
+- Desktop navigation.
+- Mobile navigation.
+- Login and registration pages.
+- Customer dashboard.
+- Supplier dashboard.
+- Super Admin dashboard.
+- Website footer.
+- Loading screens where appropriate.
+- Browser favicon.
+- PWA icons and metadata.
+
+Use the full logo/wordmark where space permits and the gemstone-only icon where a compact icon is required.
+
+Preserve the gemstone's recognizable shape, blue-violet facets, reflections and premium appearance.
+
+Do not distort, stretch or unnecessarily redesign the original gemstone.
+
+## C. Browser favicon and PWA icons
+
+Create and correctly integrate the following icon assets from the uploaded gemstone image:
+
+- favicon.ico
+- favicon-16x16.png
+- favicon-32x32.png
+- favicon-48x48.png
+- apple-touch-icon.png (180×180)
+- android-chrome-192x192.png
+- android-chrome-512x512.png
+
+Favicon requirements:
+
+- Gemstone icon only.
+- No words, letters, TE initials or extra symbols.
+- Preserve the inverted-triangle gemstone shape.
+- Retain the original blue-violet gemstone appearance.
+- Use transparent backgrounds where appropriate.
+- Do not introduce black backgrounds.
+- Ensure the gemstone remains recognizable at small sizes.
+
+Update the existing HTML head, metadata, web manifest and relevant PWA configuration.
+
+Remove outdated MIK FASHION HUB favicon references and replace them with the official TANZANITE EXPRESS assets.
+
+Do not break existing PWA functionality, service workers or installation behavior.
+
+Update the browser title to:
+
+**Tanzanite Express — Fashion You Love, Delivered to You**
+
+---
+
+# PHASE 3 — COMPLETE AUTHENTICATION SYSTEM
+
+Implement a fully functional, persistent authentication system using the existing secure provider where possible.
+
+The application must support three roles:
+
+1. SUPER ADMIN
+2. SUPPLIER
+3. CUSTOMER / BUYER
+
+### Registration
+
+New visitors must be able to:
+
+- Create an account.
+- Select Supplier or Customer registration.
+- Enter full name.
+- Enter email address.
+- Enter phone number.
+- Create and confirm a secure password.
+- Accept Terms and Conditions and Privacy Policy.
+- Verify their email where supported.
+- Complete registration.
+- Access the correct dashboard.
+
+### Returning users
+
+Users must be able to:
+
+- Log in using email and password.
+- Log out securely.
+- Reset forgotten passwords.
+- Change passwords.
+- Update profile details.
+- Maintain accounts across sessions and devices.
+- Remain logged in securely where appropriate.
+- Recover accounts through secure password-reset procedures.
+
+Persist account information in the database and use the existing authentication provider where secure and functional.
+
+Do not use browser local storage as the primary authentication system or user database.
+
+If the existing authentication system is incomplete, use a suitable solution such as Firebase Authentication or Supabase Auth according to the existing architecture.
+
+---
+
+# PHASE 4 — SUPER ADMIN BOOTSTRAP AND ACCESS CONTROL
+
+Create the initial authorized Super Admin account through a secure, one-time backend bootstrap process.
+
+Official Admin email:
+
+**mahelaissa1@gmail.com**
+
+Read the initial password exclusively from the secure backend environment secret:
+
+`ADMIN_BOOTSTRAP_PASSWORD`
+
+Never hardcode the password in frontend code, public configuration, source files or database records.
+
+Use the authentication provider's secure password hashing.
+
+Do not create duplicate Admin accounts whenever the application starts.
+
+After the first successful login, require the Super Admin to change the initial password.
+
+### Role verification
+
+After authentication:
+
+- Super Admin → Super Admin dashboard.
+- Supplier → Supplier dashboard.
+- Customer → Customer dashboard.
+
+Verify roles using trusted backend/database authorization.
+
+Never grant Admin privileges based only on an email address submitted by the frontend.
+
+Only the authorized Super Admin can manage critical administrative permissions.
+
+Protect all privileged routes and backend operations.
+
+---
+
+# PHASE 5 — ROLE-BASED DASHBOARDS
+
+## A. SUPER ADMIN DASHBOARD
+
+Give the Super Admin appropriate platform-wide control over:
+
+- Registered users.
+- Suppliers and customers.
+- Product submissions and approvals.
+- Product categories.
+- Product pricing.
+- Marketplace profit margins.
+- Orders and supplier suborders.
+- Payment verification.
+- Supplier earnings and payouts.
+- Refunds and returns.
+- Shipping and delivery.
+- Notifications.
+- AI analytics and business reports.
+- Platform settings.
+- Staff accounts and permissions.
+- Activity and audit logs.
+- Website content and marketing.
+
+The Admin must be able to search, filter, inspect, edit, suspend, activate and manage accounts according to permissions.
+
+Create a clear dashboard overview with real database statistics.
+
+## B. SUPPLIER DASHBOARD
+
+Each supplier must have a private dashboard allowing them to:
+
+- Complete and edit their business profile.
+- Submit products manually.
+- Upload multiple product images.
+- Bulk upload products using CSV.
+- Set supplier prices.
+- Manage stock and availability.
+- Manage sizes, colors and variants.
+- View product approval status.
+- Receive assigned orders.
+- Accept or reject orders according to marketplace rules.
+- Update fulfillment status.
+- Submit shipment tracking numbers.
+- View earnings and commissions.
+- View payout history.
+- View relevant product and order statistics.
+- Receive notifications.
+- View AI-generated business reports and recommendations.
+
+Suppliers must only access their own business information, products, orders, relevant delivery information, earnings and analytics.
+
+Never expose another supplier's confidential data.
+
+## C. CUSTOMER DASHBOARD
+
+Customers must be able to:
+
+- Edit personal profiles.
+- Save delivery addresses.
+- Browse, search and filter products.
+- Manage wishlists.
+- Add products to carts.
+- Place orders.
+- Submit manual payment references.
+- View payment status.
+- View order history.
+- Track deliveries.
+- Submit product reviews.
+- Request returns and refunds.
+- Receive notifications.
+- View personalized recommendations.
+- Manage privacy and personalization preferences.
+
+---
+
+# PHASE 6 — TANZANIA MANUAL PAYMENT SYSTEM
+
+Do not require paid payment gateway credentials for the initial MVP.
+
+Implement manual payment verification using:
+
+- M-Pesa.
+- NMB Bank Transfer.
+
+Official recipient name for both methods:
+
+**MAHELA ISSA KISENA**
+
+The Super Admin must configure the actual M-Pesa receiving phone number and NMB account number from the Admin dashboard.
+
+Never invent these account details.
+
+### Customer payment workflow
+
+1. Customer places an order.
+2. System calculates the exact amount payable.
+3. Customer selects M-Pesa or NMB.
+4. Display the official recipient name.
+5. Display the configured receiving number or account.
+6. Customer transfers the money.
+7. Customer submits transaction ID, amount, sender name, payment date and optional receipt screenshot.
+8. Admin receives a notification.
+9. Admin checks the transaction against the actual financial account.
+10. Admin approves or rejects the payment.
+
+Payment must remain `PENDING_VERIFICATION` until an authorized Admin confirms it.
+
+A screenshot or transaction ID alone must never automatically prove payment.
+
+Record payment verification history, responsible Admin, timestamps and decisions.
+
+After approval, update the relevant order status and notify the customer and supplier.
+
+Prevent duplicate transaction references and flag suspicious duplicate submissions.
+
+---
+
+# PHASE 7 — SUPPLIER PRODUCT SUBMISSION AND MANAGEMENT
+
+Maintain both submission methods:
+
+### A. Manual product submission
+
+Allow suppliers to enter:
+
+- Product name.
+- Description.
+- Category.
+- SKU.
+- Supplier price.
+- Available stock.
+- Sizes.
+- Colors.
+- Variants.
+- Multiple product images.
+
+### B. CSV bulk upload
+
+Implement:
+
+- Downloadable CSV template.
+- CSV validation.
+- Bulk import preview.
+- Error reporting.
+- SKU matching for bulk image uploads where supported.
+- Image URL support in CSV.
+- Clear import results.
+
+### Product image management
+
+Support:
+
+- JPG.
+- JPEG.
+- PNG.
+- WEBP.
+
+Allow:
+
+- Multiple image uploads.
+- Image previews.
+- Primary image selection.
+- Image reordering.
+- Removing and replacing images.
+- Upload progress.
+- Secure permanent storage.
+- Product image galleries.
+
+All supplier-submitted products must require Admin approval before publication.
+
+Admin controls the final customer selling price and marketplace markup.
+
+Suppliers must not be able to change the approved customer selling price without authorization.
+
+---
+
+# PHASE 8 — ORDER, INVENTORY AND DROPSHIPPING MANAGEMENT
+
+Implement a complete order lifecycle.
+
+Support:
+
+- Customer orders.
+- Multiple suppliers in one customer order where the existing architecture supports it.
+- Supplier-specific suborders.
+- Inventory reservation and stock updates.
+- Payment verification.
+- Supplier order assignment.
+- Supplier acceptance or rejection.
+- Order processing.
+- Shipment preparation.
+- Dispatch.
+- Tracking number submission.
+- Delivery confirmation.
+- Cancellation.
+- Returns and refunds.
+
+Ensure that order and payment states remain consistent.
+
+Prevent overselling, duplicate order processing and unauthorized status changes.
+
+Suppliers should receive only the customer delivery information necessary to fulfill their assigned orders.
+
+The Super Admin must be able to monitor the entire fulfillment process.
+
+---
+
+# PHASE 9 — INTERNAL NOTIFICATION SYSTEM
+
+Build a persistent notification center with real-time updates where supported.
+
+### Customer notifications
+
+- Registration confirmation.
+- Order confirmation.
+- Payment submission received.
+- Payment approved or rejected.
+- Order processing.
+- Order dispatched.
+- Tracking updates.
+- Delivery confirmation.
+- Refund and return updates.
+- Important account messages.
+
+### Supplier notifications
+
+- Registration approval or rejection.
+- Product approval or rejection.
+- New paid order assigned.
+- Order cancellation.
+- Return requests.
+- Payment and payout updates.
+- Admin messages.
+- AI business reports.
+
+### Admin notifications
+
+- New registrations.
+- New supplier applications.
+- New product submissions.
+- New customer orders.
+- New payment submissions.
+- Pending payment verification.
+- Duplicate transaction warnings.
+- Supplier fulfillment problems.
+- Refund requests.
+- Customer complaints.
+- Business performance alerts.
+
+Include:
+
+- Notification bell.
+- Unread notification counter.
+- Real-time updates.
+- Mark as read.
+- Mark all as read.
+- Notification history.
+- Notification categories.
+- Links to relevant records.
+
+Enforce notification ownership so users cannot access another user's private notifications.
+
+---
+
+# PHASE 10 — AI BUSINESS INTELLIGENCE
+
+This is a major feature. Implement actual data collection, analysis and report generation.
+
+Do not create decorative AI labels or fabricated reports.
+
+## A. User activity tracking
+
+Track permitted marketplace activities, including:
+
+- Product views.
+- Product searches.
+- Categories visited.
+- Wishlist additions.
+- Cart additions and removals.
+- Purchases.
+- Product reviews.
+- Repeat purchases.
+- Recommendation interactions.
+- Supplier product performance.
+- Order and fulfillment events.
+
+Record relevant timestamps, product identifiers, categories and account identifiers.
+
+Use privacy-conscious analytics.
+
+Provide appropriate user notice, consent where required and privacy controls.
+
+Never collect passwords, payment secrets, bank credentials or unnecessary sensitive information.
+
+Do not expose individual customers' private browsing histories to suppliers.
+
+## B. Customer preference analysis
+
+Use permitted activity to understand:
+
+- Frequently viewed categories.
+- Preferred product types.
+- Frequently purchased categories.
+- Preferred sizes and colors when voluntarily supplied or reasonably inferred from product selections.
+- Commonly considered price ranges.
+- Favorite brands.
+- Shopping frequency.
+- Wishlist interests.
+
+Allow customers to manage or disable personalization.
+
+Do not infer sensitive personal attributes.
+
+## C. AI product recommendations
+
+Implement recommendations based on:
+
+- Browsing behavior.
+- Purchase history.
+- Wishlist.
+- Product categories.
+- Similar products.
+- Popular products.
+- Relevant new arrivals.
+- Supplier product availability.
+- Price preferences.
+
+Recommendation sections should include:
+
+- Recommended for You.
+- Because You Viewed.
+- Similar Products.
+- Trending in Your Category.
+- You May Also Like.
+- Recently Viewed.
+- New Arrivals.
+
+Only recommend real, published and available products.
+
+Never recommend rejected, unpublished or unavailable products.
+
+Avoid repeatedly showing the same products when better alternatives exist.
+
+For new users with insufficient history, use popular products and category-based recommendations.
+
+## D. Super Admin AI analytics
+
+Build an AI Business Intelligence dashboard analyzing actual marketplace data.
+
+Include:
+
+- Total sales.
+- Gross marketplace revenue.
+- Marketplace commissions.
+- Pending payments.
+- Verified payments.
+- Rejected payments.
+- Total orders.
+- Completed orders.
+- Cancelled orders.
+- Refunds.
+- Registered users.
+- Active customers.
+- Active suppliers.
+- Best-performing suppliers.
+- Best-selling products.
+- Most-viewed products.
+- Product conversion rates.
+- Popular categories.
+- Customer retention.
+- Repeat purchases.
+- Cart abandonment.
+- Sales trends.
+- Product availability problems.
+- Supplier fulfillment performance.
+
+Generate useful AI insights, including:
+
+- Which categories are growing?
+- Which products should receive more promotion?
+- Which suppliers perform best?
+- Which products receive many views but few purchases?
+- Where are customers abandoning checkout?
+- What changes could improve sales?
+- Which products may need better images or descriptions?
+- What business risks require attention?
+
+Provide daily, weekly, monthly and custom date-range reports.
+
+Allow CSV or PDF export where supported.
+
+All metrics must be calculated from actual database records.
+
+## E. Supplier AI business reports
+
+Each supplier must receive reports restricted to their own business.
+
+Include:
+
+- Product views.
+- Total orders.
+- Sales performance.
+- Best-selling products.
+- Most-viewed products.
+- Low-conversion products.
+- Available stock.
+- Products needing restocking.
+- Customer ratings.
+- Returns and cancellations.
+- Fulfillment performance.
+- Earnings.
+- Pending payouts.
+- Sales trends.
+
+Generate practical suggestions for improving product descriptions, images, pricing and product selection.
+
+Never reveal other suppliers' confidential information.
+
+## F. AI report generation
+
+Use the existing AI integration if available.
+
+If an AI API key is required, read it only from secure backend environment secrets.
+
+Never expose AI keys in frontend code.
+
+Generate AI summaries from verified database records and calculated metrics.
+
+If AI is unavailable, keep normal analytics functional and display a clear message.
+
+Never invent AI-generated statistics or pretend a report was generated when it was not.
+
+---
+
+# PHASE 11 — DATABASE, PERSISTENCE AND SECURITY
+
+Inspect the existing database and implement only necessary migrations.
+
+Ensure persistent storage for:
+
+- User profiles.
+- Roles and permissions.
+- Supplier profiles.
+- Customer profiles.
+- Products.
+- Product images.
+- Product variants.
+- Inventory.
+- Orders.
+- Supplier suborders.
+- Payment submissions.
+- Payment verification records.
+- Commissions.
+- Supplier payouts.
+- Notifications.
+- User activity events.
+- User preferences.
+- Recommendation data.
+- AI reports.
+- Audit logs.
+
+Implement appropriate relationships, constraints and indexes.
+
+Use backend authorization and row-level security where supported.
+
+Never trust frontend role values or payment status updates.
+
+Protect customer delivery information and supplier business data.
+
+Use secure file storage for product images and payment receipts.
+
+Never expose:
+
+- Service-role keys.
+- AI API keys.
+- Database secrets.
+- Authentication secrets.
+- Private payment credentials.
+- Plaintext passwords.
+- Password hashes.
+- Authentication tokens.
+
+Do not store sensitive credentials in frontend local storage.
+
+---
+
+# PHASE 12 — ADMIN AUDIT LOGS AND PLATFORM CONTROL
+
+Create protected, persistent audit records for:
+
+- Login and authentication events.
+- Product approvals and rejections.
+- Price changes.
+- Payment approvals and rejections.
+- Supplier payouts.
+- Order status changes.
+- Account suspensions.
+- Permission changes.
+- Platform settings changes.
+
+Each record must include:
+
+- Responsible account.
+- Action.
+- Timestamp.
+- Relevant record identifier.
+- Appropriate action details.
+
+Protect audit records from unauthorized modification.
+
+The Super Admin should have a dedicated interface to search and inspect audit history.
+
+---
+
+# PHASE 13 — COMPLETE RESPONSIVE DESIGN
+
+Make the existing application fully responsive without removing features or changing its underlying business logic.
+
+Support:
+
+- Desktop computers.
+- Laptops.
+- Ultra-wide displays.
+- Tablets.
+- Android phones.
+- iPhones.
+- Foldable phones.
+- Touchscreen devices.
+- Portrait and landscape orientations.
+
+Test at these viewport widths:
+
+320px, 360px, 375px, 390px, 430px, 480px, 768px, 820px, 1024px, 1280px, 1440px and 1920px.
+
+### Responsive areas
+
+Review and improve:
+
+- Header and navigation.
+- Homepage.
+- Product listings.
+- Product detail pages.
+- Search and filters.
+- Cart.
+- Checkout.
+- Registration and login.
+- Customer dashboard.
+- Supplier dashboard.
+- Super Admin dashboard.
+- Forms.
+- Tables and reports.
+- CSV uploads.
+- Image galleries.
+- Notifications.
+- AI chatbot.
+
+Requirements:
+
+- Mobile-first layout.
+- No horizontal overflow.
+- No overlapping elements.
+- No clipped content.
+- Readable typography.
+- Responsive images.
+- Appropriate spacing.
+- Accessible forms.
+- Touch targets approximately 44px or larger.
+- Mobile-friendly navigation.
+- Appropriate safe-area handling.
+- Optimized loading.
+- Consistent visual hierarchy.
+
+Do not simply shrink the desktop interface to fit mobile. Adapt layouts intelligently for each screen size.
+
+Preserve all existing dashboard functionality on mobile.
+
+---
+
+# PHASE 14 — PERFORMANCE AND ACCESSIBILITY
+
+Improve performance without breaking existing functionality.
+
+Implement where appropriate:
+
+- Optimized image delivery.
+- Lazy loading.
+- Responsive image sizes.
+- Efficient database queries.
+- Pagination for large datasets.
+- Appropriate caching.
+- Loading indicators.
+- Error states.
+- Empty states.
+- Success feedback.
+- Accessible form labels.
+- Keyboard navigation.
+- Appropriate contrast.
+- Semantic page structure.
+
+Avoid unnecessary dependencies and performance-heavy components.
+
+---
+
+# PHASE 15 — CUSTOMER SUPPORT AND AI ASSISTANT
+
+Preserve any existing chatbot or support system.
+
+Improve it where necessary so customers can ask about:
+
+- Products.
+- Orders.
+- Payment instructions.
+- Delivery.
+- Returns.
+- Refunds.
+- Account issues.
+- General marketplace information.
+
+Use the existing AI integration where available.
+
+Protect AI API keys on the backend.
+
+The chatbot must not expose another customer's orders, payment details or private account information.
+
+Provide a way to escalate unresolved issues to human Admin support through a support ticket or equivalent system.
+
+---
+
+# PHASE 16 — LANGUAGE AND INTERNATIONAL READINESS
+
+Preserve and improve the existing language system where available.
+
+Support:
+
+- English.
+- Kiswahili.
+
+Ensure that navigation, dashboards, forms, payment instructions, notifications and customer-facing messages can be translated consistently.
+
+Use a maintainable translation structure instead of scattering hardcoded language strings throughout components.
+
+### International expansion
+
+Build the architecture so that international expansion can be added later.
+
+Prepare for:
+
+- Multiple currencies.
+- International shipping.
+- Additional payment providers.
+- International supplier integrations.
+- Configurable tax and shipping rules.
+
+Do not activate integrations that require credentials or contracts that have not been provided.
+
+Do not pretend an external service is connected when it is not.
+
+Keep Tanzania manual payments operational for the initial MVP.
+
+---
+
+# PHASE 17 — SECURITY AND AUTHORIZATION TESTING
+
+Test the application using separate accounts for:
+
+- Super Admin.
+- Supplier A.
+- Supplier B.
+- Customer A.
+- Customer B.
+
+Verify that:
+
+- Suppliers cannot access Admin features.
+- Customers cannot access Supplier or Admin dashboards.
+- Supplier A cannot access Supplier B's products, orders, earnings or reports.
+- Customer A cannot access Customer B's private information.
+- Users cannot change their own roles through frontend requests.
+- Unauthorized users cannot approve payments.
+- Suppliers cannot publish products without approval.
+- Customers cannot manipulate prices or payment status.
+- Private notifications cannot be accessed by other accounts.
+- Backend endpoints enforce authorization independently of the frontend.
+
+Test database policies, API authorization and file-storage permissions.
+
+---
+
+# PHASE 18 — FINAL END-TO-END TESTING
+
+Test the complete existing application after implementation.
+
+### Authentication
+- First-time registration.
+- Returning user login.
+- Password reset.
+- Password change.
+- Secure logout.
+- Session persistence.
+- Admin bootstrap.
+- Role-based redirects.
+
+### Products
+- Manual supplier submissions.
+- Multiple image uploads.
+- Image preview and reordering.
+- CSV import.
+- Admin approval.
+- Customer product browsing.
+- Product availability.
+
+### Orders and payments
+- Customer checkout.
+- Order creation.
+- Manual M-Pesa payment submission.
+- Manual NMB payment submission.
+- Admin payment verification.
+- Correct supplier order assignment.
+- Order status updates.
+- Shipment tracking.
+- Refund and cancellation workflows.
+
+### Notifications
+- Correct notification delivery.
+- Real-time updates where supported.
+- Read/unread states.
+- Notification history.
+- Role and ownership restrictions.
+
+### AI
+- Activity tracking.
+- Customer personalization.
+- Real product recommendations.
+- Admin analytics based on actual records.
+- Supplier reports restricted to their own data.
+- Graceful handling when AI is unavailable.
+
+### Branding and responsive design
+- Correct TANZANITE EXPRESS branding.
+- Correct gemstone logo.
+- Correct browser favicon.
+- Correct PWA icons.
+- No old MIK FASHION HUB branding in active user-facing areas.
+- All important pages tested at the specified viewport widths.
+- No horizontal overflow or broken layouts.
+
+Fix errors discovered during testing.
+
+Do not claim that a feature works unless it has actually been tested.
+
+Do not use fabricated production data to make tests appear successful.
+
+Use isolated test accounts and clearly distinguish test data from real business records.
+
+---
+
+# PHASE 19 — ENVIRONMENT VARIABLES AND EXTERNAL INTEGRATIONS
+
+Inspect the existing environment configuration.
+
+Identify all required variables and integrations.
+
+Potential configuration items may include:
+
+- `ADMIN_BOOTSTRAP_PASSWORD`
+- Existing database connection variables.
+- Existing authentication provider configuration.
+- AI API key.
+- Email provider credentials.
+- Payment integration credentials, only if later activated.
+- Shipping integration credentials, only if later activated.
+
+Do not invent secret values.
+
+Do not expose environment secrets in the browser.
+
+Do not delete existing environment variables or dependencies without verifying whether they are still used.
+
+Clearly identify which integrations are:
+
+1. Already connected and working.
+2. Configured but not yet verified.
+3. Missing credentials.
+4. Requiring an external account or approval.
+5. Not needed for the initial MVP.
+
+---
+
+# PHASE 20 — GITHUB, DEPLOYMENT AND DATA PRESERVATION
+
+Preserve the existing GitHub repository and project history.
+
+Do not create a replacement repository.
+
+Before major changes:
+
+- Inspect the current Git state.
+- Preserve existing work.
+- Avoid overwriting unrelated changes.
+- Make changes in manageable stages.
+- Verify the build after implementation.
+
+If GitHub access is available, commit and push changes only when authorized by the available workflow and after validating the changes.
+
+Do not claim that changes were pushed or deployed unless the operation actually succeeded.
+
+Preserve the current hosting and deployment configuration unless a change is technically necessary.
+
+---
+
+# FINAL IMPLEMENTATION REPORT
+
+At the end, provide a clear, factual report covering:
+
+1. Existing project architecture inspected.
+2. Features successfully implemented.
+3. Existing features preserved.
+4. Database tables and migrations added or modified.
+5. Authentication and role permissions implemented.
+6. Payment workflow implemented.
+7. Supplier product upload functionality.
+8. Notification system.
+9. AI analytics and recommendation functionality.
+10. Responsive design improvements.
+11. Branding and favicon integration.
+12. Security improvements.
+13. Environment variables still required.
+14. External accounts or integrations still required.
+15. Tests actually performed and their results.
+16. Known errors and remaining blockers.
+17. Deployment status.
+18. GitHub commit and push status, if applicable.
+
+Separate completed work from incomplete work.
+
+Do not mark an item as complete merely because its interface exists.
+
+A feature is complete only when its relevant frontend, backend, database and authorization behavior work together.
+
+---
+
+# NON-NEGOTIABLE IMPLEMENTATION RULES
+
+- Work inside the existing project.
+- Do not rebuild from scratch.
+- Do not delete working features.
+- Do not erase existing data.
+- Do not create duplicate authentication systems.
+- Do not create duplicate database structures unnecessarily.
+- Do not replace a working backend without a clear technical reason.
+- Do not create fake production data.
+- Do not create decorative buttons that do nothing.
+- Do not generate fabricated analytics or AI reports.
+- Do not expose private information across roles.
+- Do not hardcode passwords, API keys or secrets.
+- Do not invent payment account details.
+- Do not claim unperformed tests.
+- Do not claim successful deployment or GitHub updates without confirmation.
+- Do not sacrifice security for convenience.
+- Do not change unrelated business logic while implementing design improvements.
+
+If a requirement cannot be implemented because of missing credentials, external permissions, platform limitations or unavailable services, implement the safe parts and clearly report the blocker.
+
+## FINAL OBJECTIVE
+
+Transform the existing application into a genuinely working, secure, professional, responsive and intelligent international-ready multi-vendor fashion dropshipping marketplace under the official brand:
+
+# TANZANITE EXPRESS
+**Fashion You Love, Delivered to You.**
+
+Implement the actual frontend, backend, database, authentication, storage, payment workflows, product management, role permissions, notifications, AI analytics, recommendation engine and business logic.
+
+Do not merely explain what should be done.
+
+**Inspect first. Plan safely. Then implement and test the actual changes in the existing project.**

@@ -1,0 +1,8 @@
+{
+  "name": "TANZANITE EXPRESS",
+  "description": "Tanzanite Express — Fashion You Love, Delivered to You. Global multi-vendor fashion dropshipping marketplace connecting independent Tanzanian and international fashion suppliers with customers worldwide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

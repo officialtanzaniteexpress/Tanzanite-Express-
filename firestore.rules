@@ -1,0 +1,357 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        request.auth.token.email == 'mahelaissa1@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidUserPublic(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'role', 'status', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'displayName', 'role', 'status', 'preferredCurrency', 'preferredCountry', 'personalizationEnabled', 'analyticsConsent', 'createdAt', 'updatedAt']) &&
+        data.uid is string && data.uid == request.auth.uid && data.uid.size() <= 128 &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120 &&
+        data.role in ['customer'] &&
+        data.status in ['active'] &&
+        data.createdAt == request.time;
+    }
+
+    function isValidUserPublicUpdate(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'role', 'status', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'displayName', 'role', 'status', 'preferredCurrency', 'preferredCountry', 'personalizationEnabled', 'analyticsConsent', 'createdAt', 'updatedAt']) &&
+        data.uid == existing().uid &&
+        data.role == existing().role &&
+        data.status == existing().status &&
+        data.createdAt == existing().createdAt &&
+        data.updatedAt == request.time &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120;
+    }
+
+    function isValidUserPrivate(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+        data.keys().hasOnly(['uid', 'email', 'phone', 'addresses', 'updatedAt']) &&
+        data.uid is string && data.uid == request.auth.uid && data.uid.size() <= 128 &&
+        data.email is string && data.email.size() <= 180 &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 40)) &&
+        (!('addresses' in data) || (data.addresses is list && data.addresses.size() <= 10));
+    }
+
+    function isValidWishlistItem(data) {
+      return data.keys().hasAll(['productId', 'addedAt']) &&
+        data.keys().hasOnly(['productId', 'addedAt']) &&
+        data.productId is string && isValidId(data.productId) &&
+        data.addedAt == request.time;
+    }
+
+    function isValidWishlistDoc(data, userId) {
+      return data.keys().hasAll(['uid', 'productIds', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'productIds', 'updatedAt']) &&
+        data.uid is string && data.uid == userId &&
+        data.productIds is list && data.productIds.size() <= 200 &&
+        data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidCartDoc(data, userId) {
+      return data.keys().hasAll(['uid', 'items', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'items', 'updatedAt']) &&
+        data.uid is string && data.uid == userId &&
+        data.items is list && data.items.size() <= 50 &&
+        data.updatedAt is string && data.updatedAt.size() <= 64;
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['id', 'productId', 'customerId', 'customerName', 'rating', 'comment', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'productId', 'customerId', 'customerName', 'orderId', 'rating', 'comment', 'verifiedPurchase', 'createdAt']) &&
+        data.id is string && isValidId(data.id) &&
+        data.productId is string && isValidId(data.productId) &&
+        data.customerId is string && data.customerId == request.auth.uid &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 120 &&
+        data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+        data.comment is string && data.comment.size() >= 3 && data.comment.size() <= 1200 &&
+        data.createdAt == request.time;
+    }
+
+    // Admins registry (server/admin managed only)
+    match /admins/{adminUid} {
+      allow get: if isOwner(adminUid) || isAdmin();
+      allow list, write: if isAdmin();
+    }
+
+    // User public profile (self-registration restricted to role=customer)
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isVerifiedUser() && isValidId(userId) && isOwner(userId) && isValidUserPublic(incoming());
+      allow update: if isAdmin() || (
+        isVerifiedUser() && isValidId(userId) && isOwner(userId) &&
+        isValidUserPublicUpdate(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'preferredCurrency', 'preferredCountry', 'personalizationEnabled', 'analyticsConsent', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+
+      // Strictly isolated PII subcollection
+      match /private/{docId} {
+        allow get: if isValidId(docId) && (isOwner(userId) || isAdmin());
+        allow list: if isOwner(userId) || isAdmin();
+        allow create, update: if isVerifiedUser() && isValidId(docId) && isOwner(userId) && isValidUserPrivate(incoming());
+        allow delete: if isAdmin();
+      }
+    }
+
+    // Public approved supplier profiles; private verification isolated in subcollection
+    match /suppliers/{supplierId} {
+      allow get: if isValidId(supplierId) && (existing().status == 'APPROVED' || existing().ownerUid == request.auth.uid || isAdmin());
+      allow list: if existing().status == 'APPROVED' || (isSignedIn() && existing().ownerUid == request.auth.uid) || isAdmin();
+      allow write: if isAdmin();
+
+      match /private/{docId} {
+        allow get: if isValidId(docId) && (isAdmin() || get(/databases/$(database)/documents/suppliers/$(supplierId)).data.ownerUid == request.auth.uid);
+        allow list, write: if isAdmin();
+      }
+    }
+
+    function isLiveProduct(data) {
+      return data.status == 'PUBLISHED' || (data.status == 'APPROVED' && (!('isPublished' in data) || data.isPublished == true));
+    }
+
+    // Public published products; suppliers can read their own products; mutations handled via authorized API or admin
+    match /products/{productId} {
+      allow get: if isValidId(productId) && (isLiveProduct(existing()) || (isSignedIn() && existing().supplierOwnerUid == request.auth.uid) || isAdmin());
+      allow list: if isLiveProduct(existing()) || (isSignedIn() && existing().supplierOwnerUid == request.auth.uid) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Uploaded product image metadata strictly scoped by supplier ownership or admin
+    match /product_images/{imageId} {
+      allow get: if isValidId(imageId) && (
+        isAdmin() ||
+        (isSignedIn() && existing().supplierOwnerUid == request.auth.uid) ||
+        ('productId' in existing() && existing().productId is string && isValidId(existing().productId) &&
+          exists(/databases/$(database)/documents/products/$(existing().productId)) &&
+          isLiveProduct(get(/databases/$(database)/documents/products/$(existing().productId)).data))
+      );
+      allow list: if isAdmin() || (isSignedIn() && existing().supplierOwnerUid == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // Master Orders: strictly owner or admin
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId) && (isAdmin() || (isSignedIn() && existing().customerId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && existing().customerId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // Supplier Suborders: strictly owning supplier, owning customer, or admin
+    match /suborders/{suborderId} {
+      allow get: if isValidId(suborderId) && (
+        isAdmin() ||
+        (isSignedIn() && (existing().supplierOwnerUid == request.auth.uid || existing().customerId == request.auth.uid))
+      );
+      allow list: if isAdmin() || (
+        isSignedIn() && (existing().supplierOwnerUid == request.auth.uid || existing().customerId == request.auth.uid)
+      );
+      allow write: if isAdmin();
+    }
+
+    // Wishlists scoped strictly per user (both aggregate document & legacy item subcollection)
+    match /wishlists/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create, update: if isVerifiedUser() && isValidId(userId) && isOwner(userId) && isValidWishlistDoc(incoming(), userId);
+      allow delete: if isAdmin();
+
+      match /items/{productId} {
+        allow get: if isValidId(productId) && isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isVerifiedUser() && isValidId(productId) && isOwner(userId) && isValidWishlistItem(incoming());
+        allow delete: if isVerifiedUser() && isValidId(productId) && isOwner(userId);
+      }
+    }
+
+    // Persistent cross-device shopping carts scoped strictly per owner
+    match /carts/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create, update: if isVerifiedUser() && isValidId(userId) && isOwner(userId) && isValidCartDoc(incoming(), userId);
+      allow delete: if isVerifiedUser() && isValidId(userId) && (isOwner(userId) || isAdmin());
+    }
+
+    // Verified product reviews
+    match /reviews/{reviewId} {
+      allow get: if isValidId(reviewId);
+      allow list: if true;
+      allow create: if isVerifiedUser() && isValidId(reviewId) && isValidReview(incoming()) &&
+        exists(/databases/$(database)/documents/products/$(incoming().productId));
+      allow update, delete: if isAdmin();
+    }
+
+    // Refunds & Support tickets isolated to owner, involved supplier, or admin
+    match /refund_requests/{refundId} {
+      allow get: if isValidId(refundId) && (isAdmin() || (isSignedIn() && existing().customerId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && existing().customerId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /support_tickets/{ticketId} {
+      allow get: if isValidId(ticketId) && (isAdmin() || (isSignedIn() && existing().userId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // Public storefront configuration (read-only to clients, admin-writable)
+    match /marketplace_settings/{docId} {
+      allow get: if isValidId(docId);
+      allow list: if true;
+      allow write: if isAdmin();
+    }
+
+    function isValidNotificationReadUpdate(data) {
+      return data.keys().hasAll(['id', 'recipientUid', 'type', 'title', 'message', 'read', 'createdAt']) &&
+        data.keys().hasOnly([
+          'id', 'recipientUid', 'type', 'priority', 'title', 'message',
+          'read', 'readAt', 'hiddenByRecipient', 'hiddenAt', 'dedupeKey',
+          'targetType', 'targetId', 'actionLabel', 'createdAt'
+        ]) &&
+        data.id == existing().id &&
+        data.recipientUid == existing().recipientUid &&
+        data.type == existing().type &&
+        data.title == existing().title &&
+        data.message == existing().message &&
+        data.createdAt == existing().createdAt &&
+        data.read is bool &&
+        (!('hiddenByRecipient' in data) || data.hiddenByRecipient is bool);
+    }
+
+    function isValidNotificationPreferences(data) {
+      return data.keys().hasAll(['uid', 'inAppEnabled', 'emailEnabled', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'inAppEnabled', 'emailEnabled', 'mutedTypes', 'updatedAt']) &&
+        data.uid is string && data.uid == request.auth.uid && data.uid.size() <= 128 &&
+        data.inAppEnabled is bool &&
+        data.emailEnabled is bool &&
+        data.updatedAt is string && data.updatedAt.size() <= 64 &&
+        (!('mutedTypes' in data) || (data.mutedTypes is list && data.mutedTypes.size() <= 10));
+    }
+
+    // Operational financial & audit logs strictly admin-only and immutable after creation
+    match /audit_logs/{logId} {
+      allow get: if isValidId(logId) && isAdmin();
+      allow list: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /payment_submissions/{submissionId} {
+      allow get: if isValidId(submissionId) && (isAdmin() || (isSignedIn() && existing().customerId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && existing().customerId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /payment_audit_logs/{logId} {
+      allow get: if isValidId(logId) && isAdmin();
+      allow list: if isAdmin();
+      allow write: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow get: if isValidId(notificationId) && (isAdmin() || (isSignedIn() && existing().recipientUid == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && existing().recipientUid == request.auth.uid);
+      allow update: if isVerifiedUser() && isValidId(notificationId) && isOwner(existing().recipientUid) &&
+        isValidNotificationReadUpdate(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['read', 'readAt', 'hiddenByRecipient', 'hiddenAt']);
+      allow create, delete: if isAdmin();
+    }
+
+    match /notification_preferences/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create, update: if isVerifiedUser() && isValidId(userId) && isOwner(userId) && isValidNotificationPreferences(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // User behavioral analytics & AI recommendations (strictly isolated per owner or admin)
+    match /activity_events/{eventId} {
+      allow get: if isValidId(eventId) && (isAdmin() || (isSignedIn() && existing().userId == request.auth.uid));
+      allow list: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /user_preferences/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /ai_reports/{reportId} {
+      allow get: if isValidId(reportId) && (
+        isAdmin() ||
+        (isSignedIn() && existing().scope == 'supplier' && existing().requestedByUid == request.auth.uid)
+      );
+      allow list: if isAdmin() || (
+        isSignedIn() && existing().scope == 'supplier' && existing().requestedByUid == request.auth.uid
+      );
+      allow write: if isAdmin();
+    }
+
+    match /supplier_payouts/{payoutId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /coupons/{couponId} {
+      allow get, list, write: if isAdmin();
+    }
+
+    match /commission_rules/{ruleId} {
+      allow get, list, write: if isAdmin();
+    }
+
+    match /shipping_zones/{zoneId} {
+      allow get: if isValidId(zoneId);
+      allow list: if true;
+      allow write: if isAdmin();
+    }
+
+    match /newsletter_subscribers/{subscriberId} {
+      allow get, list, update, delete: if isAdmin();
+      allow create: if isValidId(subscriberId) &&
+        incoming().keys().hasAll(['email', 'market', 'createdAt']) &&
+        incoming().keys().hasOnly(['email', 'market', 'createdAt']) &&
+        incoming().email is string && incoming().email.size() >= 3 && incoming().email.size() <= 180 &&
+        incoming().market is string && incoming().market.size() >= 1 && incoming().market.size() <= 80 &&
+        incoming().createdAt is string && incoming().createdAt.size() <= 64;
+    }
+  }
+}
