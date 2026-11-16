@@ -2,12 +2,16 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
-import {defineConfig} from 'vite';
-import {VitePWA} from 'vite-plugin-pwa';
+import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
-  const rawBase = process.env.VITE_BASE_PATH || '/';
-  const basePath = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+  // Kama una-deploy GitHub Pages bila custom domain, weka VITE_BASE_PATH=/Tanzanite-Express-/
+  // Vinginevyo './' inasaidia mafaili yasomeke popote bila blank screen
+  const rawBase = process.env.VITE_BASE_PATH || './';
+  const basePath = rawBase === './' ? './' : rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+  const rootDir = process.cwd();
+
   return {
     base: basePath,
     plugins: [
@@ -15,6 +19,7 @@ export default defineConfig(() => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: 'auto',
         includeAssets: [
           'favicon.ico',
           'favicon-16x16.png',
@@ -28,7 +33,6 @@ export default defineConfig(() => {
           'pwa-512x512.png',
         ],
         manifest: {
-          id: basePath,
           name: 'TANZANITE EXPRESS',
           short_name: 'Tanzanite',
           description:
@@ -36,23 +40,23 @@ export default defineConfig(() => {
           theme_color: '#2B3A9F',
           background_color: '#F8F9FC',
           display: 'standalone',
-          start_url: basePath,
-          scope: basePath,
+          start_url: './',
+          scope: './',
           icons: [
             {
-              src: `${basePath}android-chrome-192x192.png`,
+              src: 'android-chrome-192x192.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: `${basePath}android-chrome-512x512.png`,
+              src: 'android-chrome-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: `${basePath}pwa-maskable-512x512.png`,
+              src: 'pwa-maskable-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
@@ -63,40 +67,33 @@ export default defineConfig(() => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallbackDenylist: [/^\/api\//],
+          cleanupOutdatedCaches: true,
         },
         devOptions: {
-          enabled: true,
-          type: 'module',
+          enabled: false, // Imezimwa kwenye dev ili isilete cache conflicts
         },
       }),
-      // Copies src/assets into dist/ so root-relative URLs like
-      // "/src/assets/images/..." continue to resolve in production builds.
       {
         name: 'copy-unbundled-src-assets',
         apply: 'build',
         closeBundle(error?: Error): void {
-          if (error) {
-            return;
-          }
-          const distDir = path.resolve(import.meta.dirname, 'dist');
-          const srcAssets = path.resolve(import.meta.dirname, 'src/assets');
+          if (error) return;
+          const distDir = path.resolve(rootDir, 'dist');
+          const srcAssets = path.resolve(rootDir, 'src/assets');
           const distAssets = path.resolve(distDir, 'src/assets');
           if (fs.existsSync(distDir) && fs.existsSync(srcAssets)) {
-            fs.cpSync(srcAssets, distAssets, {recursive: true, force: true});
+            fs.cpSync(srcAssets, distAssets, { recursive: true, force: true });
           }
         },
       },
     ],
     resolve: {
       alias: {
-        '@': path.resolve(import.meta.dirname, '.'),
+        '@': path.resolve(rootDir, '.'),
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
